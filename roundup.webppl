@@ -22,6 +22,114 @@ var stateToIntState = function(state) {
 };
 
 ////////////////////////////////////////////////////////////////
+// State transitions.
+////////////////////////////////////////////////////////////////
+//
+// A transition function (for a bull or cowboy) gets the agents
+// current position, the map parameters, and the position and type of
+// all other agents. The output is a new position:
+//
+// (position, state) -> position
+//
+// Note: the state here doesn't include the bull or cowboy entry for
+// the current agent, i.e. the agent in position specified by the
+// first argument.
+
+// For the map, I'm assuming the upper left corner is '{x:0,y:0}',
+// that 'x' is horizontal, and that 'y' is vertical.
+
+////////////////////////////////////////////////////////////////
+// Perimeter.
+
+var topWall = function(map) {
+  return 0;
+};
+
+var bottomWall = function(map) {
+  return map.rows - 1;
+};
+
+var leftWall = function(map) {
+  return 0;
+};
+
+var rightWall = function(map) {
+  return map.cols - 1;
+};
+
+var isOnPerimeter = function(here, map) {
+  return
+    here.x == leftWall(map) ||
+    here.y == topWall(map) ||
+    here.x == rightWall(map) ||
+    here.y == bottomWall(map);
+};
+
+////////////////////////////////////////////////////////////////
+// Moves.
+
+var goUp = function(xy) {
+  return {x: xy.x, y: xy.y - 1};
+}
+
+var goDown = function(xy) {
+  return {x: xy.x, y: xy.y + 1};
+}
+
+var goLeft = function(xy) {
+  return {x: xy.x - 1, y: xy.y};
+}
+
+var goRight = function(xy) {
+  return {x: xy.x + 1, y: xy.y};
+}
+
+////////////////////////////////////////////////////////////////
+
+// Transition function for an agent that runs to the perimeter and
+// then goes in circles.
+//
+// If the agent is already on the perimeter, then it continues in the
+// clockwise direction (IDEA: it might good to associate additional
+// internal state with each agent, e.g. here we might want to know the
+// previous position we were in).
+//
+// If the agent is not already on the perimeter, then it steps towards
+// the closest point on the perimeter.
+var circleThePerimeterTransition = function(here, state) {
+  var map = state.map;
+  if (isOnPerimeter(here, map)) {
+    if (here.x == leftWall(map) && here.y != topWall(map)) {
+      // Left wall.
+      return goUp(here);
+    } else if (here.y == topWall(map) && here.x != rightWall(map)) {
+      // Top wall.
+      return goRight(here);
+    } else if (here.x == rightWall(map) && here.y != bottomWall(map)) {
+      // Right wall.
+      return goDown(here);
+    } else if (here.y == bottomWall(map) && here.x != leftWall(map)) {
+      // Bottom wall.
+      return goLeft(here);
+    } else {
+      dieDieDie("The map is 1x1, or we have a bug!");
+    }
+  } else {
+    // Not on the perimeter yet.
+    var weightedMoves = [
+      {delta: here.x - leftWall(map),   move: goLeft},
+      {delta: here.x - rightWall(map),  move: goRight},
+      {delta: here.y - topWall(map),    move: goUp},
+      {delta: here.y - bottomWall(map), move: goDown}]
+    var getWeight = function(wm) {
+      return Math.abs(wm.delta);
+    }
+    return sortOn(weightedMoves, getWeight).move(here);
+  }
+};
+
+////////////////////////////////////////////////////////////////
+// Rendering.
 
 // Example of rendering in the shell with screen clearing between frames:
 /*
