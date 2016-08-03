@@ -39,11 +39,11 @@ var areCollided = function(xy1, xy2) {
 // Let's put some primitives here. We'll start with a placeholder for each, and fill in as we go.
 // 
 // 
-var bullDirection = function(x, y, state) {
+var bullDirection = function(xy, state) {
   return 0;
 };
 
-var cowboyDirection = function(x,y,state) {
+var cowboyDirection = function(xy,state) {
  return 0
 }
 
@@ -52,7 +52,10 @@ var cowboyDirection = function(x,y,state) {
 // Cowboy AI
 // Cowboy movement is initialized by sampling a random direction; this is weighted according to bull direction, etc
 // 
-// 
+var cowboyTransition = function(xy,state) {
+  var move = uniformDraw(goUp, goDown, goLeft, goRight)
+  return move(xy)
+}
 
 // Produce an ASCII rendering of the world state.
 //
