@@ -7,20 +7,129 @@ var print = display;
 // state. I should instead only be writing these funcations at the
 // point that we need them ...
 
-var coordsToIntCoords = function(coords) {
-  return { x: Math.floor(coords[x]),
-           y: Math.floor(coords[y])
+var coordsToIntCoords = function(xy) {
+  return { x: Math.floor(xy.x),
+           y: Math.floor(xy.y)
          };
 };
 
 // Make all the coords in a state integers, in case we allow floating point.
 var stateToIntState = function(state) {
-  return { bulls: map(coordsToIntCoords, state[bulls]),
-           coybows: map(coordsToIntCoords, state[cowboys]),
+  return { bulls: map(coordsToIntCoords, state.bulls),
+           coybows: map(coordsToIntCoords, state.cowboys),
            map: state[map]
          };
 };
 
+////////////////////////////////////////////////////////////////
+// State transitions.
+////////////////////////////////////////////////////////////////
+//
+// A transition function (for a bull or cowboy) gets the agents
+// current position, the map parameters, and the position and type of
+// all other agents. The output is a new position:
+//
+// (position, state) -> position
+//
+// Note: the state here doesn't include the bull or cowboy entry for
+// the current agent, i.e. the agent in position specified by the
+// first argument.
+
+// For the map, I'm assuming the upper left corner is '{x:0,y:0}',
+// that 'x' is horizontal, and that 'y' is vertical.
+
+////////////////////////////////////////////////////////////////
+// Perimeter.
+
+var topWall = function(map) {
+  return 0;
+};
+
+var bottomWall = function(map) {
+  return map.rows - 1;
+};
+
+var leftWall = function(map) {
+  return 0;
+};
+
+var rightWall = function(map) {
+  return map.cols - 1;
+};
+
+var isOnPerimeter = function(here, map) {
+  return
+    here.x == leftWall(map) ||
+    here.y == topWall(map) ||
+    here.x == rightWall(map) ||
+    here.y == bottomWall(map);
+};
+
+////////////////////////////////////////////////////////////////
+// Moves.
+
+var goUp = function(here) {
+  return {x: here.x, y: here.y - 1};
+}
+
+var goDown = function(here) {
+  return {x: here.x, y: here.y + 1};
+}
+
+var goLeft = function(here) {
+  return {x: here.x - 1, y: here.y};
+}
+
+var goRight = function(here) {
+  return {x: here.x + 1, y: here.y};
+}
+
+////////////////////////////////////////////////////////////////
+
+// Transition function for an agent that runs to the perimeter and
+// then goes in circles.
+//
+// If the agent is already on the perimeter, then it continues in the
+// clockwise direction (IDEA: it might good to associate additional
+// internal state with each agent, e.g. here we might want to know the
+// previous position we were in).
+//
+// If the agent is not already on the perimeter, then it steps towards
+// the closest point on the perimeter.
+var circleThePerimeterTransition = function(here, state) {
+  var map = state.map;
+  if (isOnPerimeter(here, map)) {
+    if (here.x == leftWall(map) && here.y != topWall(map)) {
+      // Left wall.
+      return goUp(here);
+    } else if (here.y == topWall(map) && here.x != rightWall(map)) {
+      // Top wall.
+      return goRight(here);
+    } else if (here.x == rightWall(map) && here.y != bottomWall(map)) {
+      // Right wall.
+      return goDown(here);
+    } else if (here.y == bottomWall(map) && here.x != leftWall(map)) {
+      // Bottom wall.
+      return goLeft(here);
+    } else {
+      dieDieDie("The map is 1x1, or we have a bug!");
+    }
+  } else {
+    // Not on the perimeter yet.
+    var weightedMoves = [
+      {delta: here.x - leftWall(map),   move: goLeft},
+      {delta: here.x - rightWall(map),  move: goRight},
+      {delta: here.y - topWall(map),    move: goUp},
+      {delta: here.y - bottomWall(map), move: goDown}]
+    var getWeight = function(wm) {
+      return Math.abs(wm.delta);
+    }
+    return sortOn(weightedMoves, getWeight).move(here);
+  }
+};
+
+////////////////////////////////////////////////////////////////
+// Rendering.
 ////////////////////////////////////////////////////////////////
 
 // Example of rendering in the shell with screen clearing between frames:
@@ -31,19 +140,19 @@ for i in `seq 1 999`; do echo -n '\033[2J'; echo $((i/100)); echo $(((i / 10) % 
 // http://stackoverflow.com/questions/9006988/node-js-on-windows-how-to-clear-console.
 
 // Test if two coords are in the same square.
-var areCollided = function(xy1, xy2) {
-  return xy1.x === xy2.x && xy1.y === xy2.y;
+var areCollided = function(here1, here2) {
+  return here1.x === here2.x && here1.y === here2.y;
 }
 
 // PRIMITIVES
 // Let's put some primitives here. We'll start with a placeholder for each, and fill in as we go.
 // 
 // 
-var bullDirection = function(x, y, state) {
+var bullDirection = function(here, state) {
   return 0;
 };
 
-var cowboyDirection = function(x,y,state) {
+var cowboyDirection = function(here,state) {
  return 0
 }
 
@@ -52,7 +161,10 @@ var cowboyDirection = function(x,y,state) {
 // Cowboy AI
 // Cowboy movement is initialized by sampling a random direction; this is weighted according to bull direction, etc
 // 
-// 
+var cowboyTransition = function(here,state) {
+  var move = uniformDraw(goUp, goDown, goLeft, goRight)
+  return move(here)
+}
 
 // Produce an ASCII rendering of the world state.
 //
