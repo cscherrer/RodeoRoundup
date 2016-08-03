@@ -95,8 +95,13 @@ var comboyUtility = function(x,y,state) {
   return 0
 }
 
-var bullUtility = function(x,y,state) {
-  return 0
+var bullUtility = function(x, y, state) {
+  // distance toCowboys
+
+  var distToCowboy = function(cowboyPos) {(x - cowboyPos.x) ^ 2 + (y - cowboyPos.y) ^ 2};
+  var averageDistanceFromBullToCowboy = average(map(distToCowboy, state.cowboys))
+  return averageDistanceFromBullToCowboy
+  // Might want to look at other stats like min dist to cowboy
 }
 
 
