@@ -44,7 +44,7 @@ var bullDirection(x, y, state) {
 }
 
 var cowboyDirection(x,y,state) {
-
+ return 0
 }
 
 
