@@ -214,15 +214,20 @@ var render = function(state) {
   return collapse(collapse(withNewLines));
 };
 
-var comboyUtility = function(x,y,state) {
-  return 0
+
+var cowboyUtility = function(x,y,state) {
+  return average(map(distToEntity.bind(cowboyPos, state.bulls))) 
 }
+
+
+var distToEntity = function(bullPos, cowboyPos) {sqrt((bullPos.x - cowboyPos.x) ^ 2 + (bullPos.y - cowboyPos.y) ^ 2)};
 
 var bullUtility = function(x, y, state) {
   // distance toCowboys
 
-  var distToCowboy = function(cowboyPos) {(x - cowboyPos.x) ^ 2 + (y - cowboyPos.y) ^ 2};
-  var averageDistanceFromBullToCowboy = average(map(distToCowboy, state.cowboys))
+  var bullPos = {x : x, y : y}
+
+  var averageDistanceFromBullToCowboy = average(map(distToEntity.bind(bullPos), state.cowboys))
   return averageDistanceFromBullToCowboy
   // Might want to look at other stats like min dist to cowboy
 }
