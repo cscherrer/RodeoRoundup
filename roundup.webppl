@@ -43,9 +43,45 @@ var areCollided = function(xy1, xy2) {
 //
 // * 'map' is '{ rows: <int>, cols: <int> }'
 var render = function(state) {
-  var bull = "#";
-  var cowboy = "c";
-  print("test "+bull+" "+cowboy);
+  var rows = state.map.rows;
+  var cols = state.map.cols;
+  var bulls = state.bulls;
+  var cowboys = state.cowboys;
+  return mapN(function (r) {
+    return mapN(function (c) {
+      var here = {x:r,y:c};
+      var foundABull   = any(function(them) { return areCollided(them, here) }, bulls);
+      var foundACowboy = any(function(them) { return areCollided(them, here) }, cowboys);
+      if (foundABull && foundACowboy) {
+        return "$";
+      } else if (foundABull) {
+        return "B";
+      } else if (foundACowboy) {
+        return "c";
+      } else {
+        return " ";
+      }
+    }, cols)
+  }, rows);
 };
 
-render(null);
+////////////////////////////////////////////////////////////////
+// Examples.
+
+var state1 = {
+  bulls: [{x:0,y:0}],
+  cowboys: [{x:0,y:0}, {x:1,y:1}],
+  map: {rows: 4, cols: 4}
+};
+
+var state2 = {
+  bulls: [{x:2,y:0}, {x:3,y:7}],
+  cowboys: [{x:0,y:0}, {x:1,y:1}],
+  map: {rows: 4, cols: 8}
+};
+
+print(state1);
+print(render(state1));
+print();
+print(state2);
+print(render(state2));
