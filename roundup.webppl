@@ -1,0 +1,51 @@
+// On the command line 'print' is called 'display' :P So, create an
+// alias to make it less painful to run this in the web.
+var print = display;
+
+////////////////////////////////////////////////////////////////
+// The premature over engineering part: convert state to an integer
+// state. I should instead only be writing these funcations at the
+// point that we need them ...
+
+var coordsToIntCoords = function(coords) {
+  return { x: Math.floor(coords[x]),
+           y: Math.floor(coords[y])
+         };
+};
+
+// Make all the coords in a state integers, in case we allow floating point.
+var stateToIntState = function(state) {
+  return { bulls: map(coordsToIntCoords, state[bulls]),
+           coybows: map(coordsToIntCoords, state[cowboys]),
+           map: state[map]
+         };
+};
+
+////////////////////////////////////////////////////////////////
+
+// Example of rendering in the shell with screen clearing between frames:
+/*
+for i in `seq 1 999`; do echo -n '\033[2J'; echo $((i/100)); echo $(((i / 10) % 10)); echo $((i % 10)); sleep 0.01; done;
+*/
+// More on magic terminal-clearing-escape-sequences here:
+// http://stackoverflow.com/questions/9006988/node-js-on-windows-how-to-clear-console.
+
+// Test if two coords are in the same square.
+var areCollided = function(xy1, xy2) {
+  return xy1.x === xy2.x && xy1.y === xy2.y;
+}
+
+// Produce an ASCII rendering of the world state.
+//
+// * 'state' is '{ bulls: <sequence-of-bull-coords>, cowboys: <sequence-of-cowboy-coords>, map: <map> }'.
+//
+// * 'coords' is '{ x: <number>, y: <number> }'
+//
+// * 'map' is '{ rows: <int>, cols: <int> }'
+var render = function(state) {
+  var bull = "#";
+  var cowboy = "c";
+  print("test "+bull+" "+cowboy);
+};
+
+render(null);
