@@ -166,8 +166,9 @@ var cowboyTransition = function(here,state) {
   return move(here)
 }
 
-// Maximum utility agent, adapted from Andreas's code
+var   actions = [goUp, goDown, goLeft, goRight];
 
+// Maximum utility agent, adapted from Andreas's code
 var maxEUAgent = function(here,state,utility) {
   var expectedUtility = function(action) {
     return expectation(Infer({ method: 'enumerate' }, function() {
