@@ -7,16 +7,16 @@ var print = display;
 // state. I should instead only be writing these funcations at the
 // point that we need them ...
 
-var coordsToIntCoords = function(coords) {
-  return { x: Math.floor(coords[x]),
-           y: Math.floor(coords[y])
+var coordsToIntCoords = function(xy) {
+  return { x: Math.floor(xy.x),
+           y: Math.floor(xy.y)
          };
 };
 
 // Make all the coords in a state integers, in case we allow floating point.
 var stateToIntState = function(state) {
-  return { bulls: map(coordsToIntCoords, state[bulls]),
-           coybows: map(coordsToIntCoords, state[cowboys]),
+  return { bulls: map(coordsToIntCoords, state.bulls),
+           coybows: map(coordsToIntCoords, state.cowboys),
            map: state[map]
          };
 };
@@ -130,6 +130,7 @@ var circleThePerimeterTransition = function(here, state) {
 
 ////////////////////////////////////////////////////////////////
 // Rendering.
+////////////////////////////////////////////////////////////////
 
 // Example of rendering in the shell with screen clearing between frames:
 /*
