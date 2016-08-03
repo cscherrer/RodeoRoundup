@@ -166,6 +166,17 @@ var cowboyTransition = function(here,state) {
   return move(here)
 }
 
+// Maximum utility agent, adapted from Andreas's code
+
+var maxEUAgent = function(here,state,utility) {
+  var expectedUtility = function(action) {
+    return expectation(Infer({ method: 'enumerate' }, function() {
+      return utility(transition(state, action));
+    }));
+  };
+  return argMax(expectedUtility, actions);
+};
+
 // Produce an ASCII rendering of the world state.
 //
 // * 'state' is '{ bulls: <sequence-of-bull-coords>, cowboys: <sequence-of-cowboy-coords>, map: <map> }'.
