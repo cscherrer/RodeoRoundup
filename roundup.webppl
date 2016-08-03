@@ -47,22 +47,29 @@ var render = function(state) {
   var cols = state.map.cols;
   var bulls = state.bulls;
   var cowboys = state.cowboys;
-  return mapN(function (r) {
+  var agentGrid = mapN(function (r) {
     return mapN(function (c) {
       var here = {x:r,y:c};
       var foundABull   = any(function(them) { return areCollided(them, here) }, bulls);
       var foundACowboy = any(function(them) { return areCollided(them, here) }, cowboys);
       if (foundABull && foundACowboy) {
-        return "$";
+        return "$$";
       } else if (foundABull) {
-        return "B";
+        return "BB";
       } else if (foundACowboy) {
-        return "c";
+        return "cc";
       } else {
-        return " ";
+        return "  ";
       }
     }, cols)
   }, rows);
+  var horizontalFence = ['+'].concat(repeat(cols, function() {'--'})).concat(['+']);
+  var withVerticalFences = map(function(row) {['|'].concat(row).concat(['|'])}, agentGrid);
+  var withFences = [horizontalFence].concat(withVerticalFences).concat([horizontalFence]);
+  var withNewLines = map(function(row) { return row.concat('\n') }, withFences);
+
+  var collapse = function(xss) { return reduce(function(a,b) { return a.concat(b) }, [], xss) };
+  return collapse(collapse(withNewLines));
 };
 
 ////////////////////////////////////////////////////////////////
@@ -82,6 +89,6 @@ var state2 = {
 
 print(state1);
 print(render(state1));
-print();
+print("");
 print(state2);
 print(render(state2));
