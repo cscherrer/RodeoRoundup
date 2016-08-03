@@ -221,7 +221,7 @@ var cowboyUtility = function(x,y,state) {
 }
 
 
-var distToEntity = function(bullPos, cowboyPos) {sqrt((bullPos.x - cowboyPos.x) ^ 2 + (bullPos.y - cowboyPos.y) ^ 2)};
+var distToEntity = function(bullPos, cowboyPos) {Math.sqrt(Math.pow((bullPos.x - cowboyPos.x), 2) + Math.pow((bullPos.y - cowboyPos.y), 2))};
 
 var bullUtility = function(x, y, state) {
   // distance toCowboys
@@ -249,6 +249,7 @@ var state2 = {
   cowboys: [{x:0,y:0}, {x:1,y:1}],
   map: {rows: 4, cols: 8}
 };
+
 
 print(state1);
 print(render(state1));
