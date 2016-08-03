@@ -72,6 +72,16 @@ var render = function(state) {
   return collapse(collapse(withNewLines));
 };
 
+var comboyUtility = function(x,y,state) {
+  return 0
+}
+
+var bullUtility = function(x,y,state) {
+  return 0
+}
+
+
+
 ////////////////////////////////////////////////////////////////
 // Examples.
 
