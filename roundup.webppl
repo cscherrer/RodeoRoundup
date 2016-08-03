@@ -1,0 +1,94 @@
+// On the command line 'print' is called 'display' :P So, create an
+// alias to make it less painful to run this in the web.
+var print = display;
+
+////////////////////////////////////////////////////////////////
+// The premature over engineering part: convert state to an integer
+// state. I should instead only be writing these funcations at the
+// point that we need them ...
+
+var coordsToIntCoords = function(coords) {
+  return { x: Math.floor(coords[x]),
+           y: Math.floor(coords[y])
+         };
+};
+
+// Make all the coords in a state integers, in case we allow floating point.
+var stateToIntState = function(state) {
+  return { bulls: map(coordsToIntCoords, state[bulls]),
+           coybows: map(coordsToIntCoords, state[cowboys]),
+           map: state[map]
+         };
+};
+
+////////////////////////////////////////////////////////////////
+
+// Example of rendering in the shell with screen clearing between frames:
+/*
+for i in `seq 1 999`; do echo -n '\033[2J'; echo $((i/100)); echo $(((i / 10) % 10)); echo $((i % 10)); sleep 0.01; done;
+*/
+// More on magic terminal-clearing-escape-sequences here:
+// http://stackoverflow.com/questions/9006988/node-js-on-windows-how-to-clear-console.
+
+// Test if two coords are in the same square.
+var areCollided = function(xy1, xy2) {
+  return xy1.x === xy2.x && xy1.y === xy2.y;
+}
+
+// Produce an ASCII rendering of the world state.
+//
+// * 'state' is '{ bulls: <sequence-of-bull-coords>, cowboys: <sequence-of-cowboy-coords>, map: <map> }'.
+//
+// * 'coords' is '{ x: <number>, y: <number> }'
+//
+// * 'map' is '{ rows: <int>, cols: <int> }'
+var render = function(state) {
+  var rows = state.map.rows;
+  var cols = state.map.cols;
+  var bulls = state.bulls;
+  var cowboys = state.cowboys;
+  var agentGrid = mapN(function (r) {
+    return mapN(function (c) {
+      var here = {x:r,y:c};
+      var foundABull   = any(function(them) { return areCollided(them, here) }, bulls);
+      var foundACowboy = any(function(them) { return areCollided(them, here) }, cowboys);
+      if (foundABull && foundACowboy) {
+        return "$$";
+      } else if (foundABull) {
+        return "BB";
+      } else if (foundACowboy) {
+        return "cc";
+      } else {
+        return "  ";
+      }
+    }, cols)
+  }, rows);
+  var horizontalFence = ['+'].concat(repeat(cols, function() {'--'})).concat(['+']);
+  var withVerticalFences = map(function(row) {['|'].concat(row).concat(['|'])}, agentGrid);
+  var withFences = [horizontalFence].concat(withVerticalFences).concat([horizontalFence]);
+  var withNewLines = map(function(row) { return row.concat('\n') }, withFences);
+
+  var collapse = function(xss) { return reduce(function(a,b) { return a.concat(b) }, [], xss) };
+  return collapse(collapse(withNewLines));
+};
+
+////////////////////////////////////////////////////////////////
+// Examples.
+
+var state1 = {
+  bulls: [{x:0,y:0}],
+  cowboys: [{x:0,y:0}, {x:1,y:1}],
+  map: {rows: 4, cols: 4}
+};
+
+var state2 = {
+  bulls: [{x:2,y:0}, {x:3,y:7}],
+  cowboys: [{x:0,y:0}, {x:1,y:1}],
+  map: {rows: 4, cols: 8}
+};
+
+print(state1);
+print(render(state1));
+print("");
+print(state2);
+print(render(state2));
