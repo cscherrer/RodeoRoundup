@@ -21,6 +21,11 @@ var stateToIntState = function(state) {
          };
 };
 
+var removeElement = function(xs, i) {
+  return xs.slice(0, i).concat(xs.slice(i+1));
+}
+
+
 var getXy = function(r) { return r.xy };
 
 var sim2world = function(simState) {
@@ -93,40 +98,52 @@ var sim2world = function(simState) {
 ////////////////////////////////////////////////////////////////
 // Main simulation loop.
 
+
+
+var getCowboy = function(n, simState, worldState) {
+  var myAgent = simState.cowboys[n]
+  var myWorld = {
+      bulls: worldState.bulls
+    , cowboys: removeElement(worldState.cowboys, n)
+    , map: worldState.map
+    }
+  }
+}
+
 // Run the simulation for one step, by running all agent transition
 // functions to compute new agent states.
 var stepSimulation = function(simState) {
-  print(simState);
-  print(simState.bulls);
-  print("length: " + simState.bulls.length);
-  print("simulate 1");
-  
-  print("getXy: " + getXy(simState.bulls[0]).x);
-  print("simulate 2");
+  // print(simState);
+  // print(simState.bulls);
+  // print("length: " + simState.bulls.length);
+  // print("simulate 1");
+  // 
+  // print("getXy: " + getXy(simState.bulls[0]).x);
+  // print("simulate 2");
   var worldState = sim2world(simState);
-  print("simulate 3");
+  // print("simulate 3");
   // NOTE!!! The plain 'print(worldState)' prints a useful
   // representation, but the 'print("worldState: " + worldState)' does
   // not! I have no idea how the string conversion works, but the
   // distinction is useful for debugging.
-  print("worldState: " + worldState);
-  print(worldState);
-  print("slice: ");
-  print([1,2,3,4].slice(1,2));
-  print([1,2,3].slice(3));
+  // print("worldState: " + worldState);
+  // print(worldState);
+  // print("slice: ");
+  // print([1,2,3,4].slice(1,2));
+  // print([1,2,3].slice(3));
   var newBulls = mapIndexed(function(n, agentState) {
     var worldStateWithoutCurrentBull = {
       bulls: worldState.bulls.slice(0, n).concat(worldState.bulls.slice(n+1)),
       cowboys: worldState.cowboys,
       map: worldState.map
     }
-    print("worldStateWithoutCurrentBull");
-    print(worldStateWithoutCurrentBull);
-    print("agentState");
-    print(agentState);
+    // print("worldStateWithoutCurrentBull");
+    // print(worldStateWithoutCurrentBull);
+    // print("agentState");
+    // print(agentState);
     var update = agentState.transition(agentState.xy, agentState.internalState, worldStateWithoutCurrentBull);
-    print("update");
-    print(update);
+    // print("update");
+    // print(update);
     return {
       xy: update.xy,
       internalState: update.internalState,
@@ -135,8 +152,8 @@ var stepSimulation = function(simState) {
   }, simState.bulls);
   // XXX: note that newBulls have a bunch of undefined below! There is
   // a bug nearby ...
-  print("newBulls: ");
-  print(newBulls);
+  // print("newBulls: ");
+  // print(newBulls);
   var newCowboys = mapIndexed(function(n, agentState) {
     var worldStateWithoutCurrentCowboy = {
       bulls: worldState.bulls,
@@ -297,8 +314,6 @@ var cowboyDirection = function(here,state) {
  return 0
 }
 
-
-
 // Cowboy AI
 // Cowboy movement is initialized by sampling a random direction; this is weighted according to bull direction, etc
 // 
@@ -354,11 +369,9 @@ var render = function(worldState) {
   return collapse(collapse(withNewLines));
 };
 
-
 var cowboyUtility = function(x,y,state) {
   return average(map(distToEntity.bind(cowboyPos, state.bulls))) 
 }
-
 
 var distToEntity = function(bullPos, cowboyPos) {Math.sqrt(Math.pow((bullPos.x - cowboyPos.x), 2) + Math.pow((bullPos.y - cowboyPos.y), 2))};
 
@@ -387,7 +400,6 @@ var worldState2 = {
   map: {rows: 20, cols: 20}
 };
 
-
 //print(isOnPerimeter(worldState1.cowboys[1], worldState1.map));
 
 var withTransition = function(t) {
@@ -411,7 +423,9 @@ var simState2 = {
   , cowboys: map(withTransition(idTransition), worldState2.cowboys)
   , map: worldState2.map
 }
-// print(runSimulation(simState2, 10));
+
+//print(runSimulation(simState2, 10));
 
 
-print(map(makeDummy, worldState2.bulls))
+print(simState2)
+stepSimulation(simState2)
