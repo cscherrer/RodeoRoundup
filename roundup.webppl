@@ -83,9 +83,81 @@ var stateToIntState = function(state) {
 ////////////////////////////////////////////////////////////////
 // Main simulation loop.
 
+// Run the simulation for one step, by running all agent transition
+// functions to compute new agent states.
 var stepSimulation = function(simState) {
-  return 0;
+  print(simState);
+  print(simState.bulls);
+  print("length: " + simState.bulls.length);
+  print("simulate 1");
+  var getXy = function(r) { return r.xy };
+  print("getXy: " + getXy(simState.bulls[0]).x);
+  print("simulate 2");
+  var worldState = {
+    bulls: map(getXy, simState.bulls),
+    cowboys: map(getXy, simState.cowboys),
+    map: simState.map
+  }
+  print("simulate 2");
+  // NOTE!!! The plain 'print(worldState)' prints a useful
+  // representation, but the 'print("worldState: " + worldState)' does
+  // not! I have no idea how the string conversion works, but the
+  // distinction is useful for debugging.
+  print("worldState: " + worldState);
+  print(worldState);
+  print("slice: ");
+  print([1,2,3,4].slice(1,2));
+  print([1,2,3].slice(3));
+  var newBulls = mapIndexed(function(n, agentState) {
+    var worldStateWithoutCurrentBull = {
+      bulls: worldState.bulls.slice(0, n).concat(worldState.bulls.slice(n+1)),
+      cowboys: worldState.cowboys,
+      map: worldState.map
+    }
+    print("worldStateWithoutCurrentBull");
+    print(worldStateWithoutCurrentBull);
+    print("agentState");
+    print(agentState);
+    var update = agentState.transition(agentState.xy, agentState.internalState, worldStateWithoutCurrentBull);
+    print("update");
+    print(update);
+    return {
+      xy: update.xy,
+      internalState: update.internalState,
+      transition: agentState.transition
+    };
+  }, simState.bulls);
+  // XXX: note that newBulls have a bunch of undefined below! There is
+  // a bug nearby ...
+  print("newBulls: ");
+  print(newBulls);
+  var newCowboys = mapIndexed(function(n, agentState) {
+    var worldStateWithoutCurrentCowboy = {
+      bulls: worldState.bulls,
+      cowboys: worldState.cowboys.slice(0, n).concat(worldState.cowboys.slice(n+1)),
+      map: worldState.map
+    }
+    var update = agentState.transition(agentState.xy, agentState.internalState, worldStateWithoutCurrentCowboy);
+    return {
+      xy: update.xy,
+      internalState: update.internalState,
+      transition: agentState.transition
+    };
+  }, simState.bulls);
+  return {
+    bulls: newBulls,
+    cowboys: newCowboys,
+    map: simState.map
+  };
 }
+
+var runSimulation = function(simState, numSteps) {
+  if (numSteps == 0) {
+    return [simState];
+  } else {
+    return [simState].concat(runSimulation(stepSimulation(simState), numSteps - 1));
+  };
+};
 
 ////////////////////////////////////////////////////////////////
 // Perimeter.
@@ -135,6 +207,12 @@ var goRight = function(here) {
 
 ////////////////////////////////////////////////////////////////
 
+// Transition function that does nothing. A random transition function
+// would be a nice test case too.
+var idTransition = function(xy, internalState, worldState) {
+  return {xy: xy, internalState: internalState};
+};
+
 // Transition function for an agent that runs to the perimeter and
 // then goes in circles.
 //
@@ -144,8 +222,12 @@ var goRight = function(here) {
 // If the agent is not already on the perimeter, then it steps towards
 // the closest point on the perimeter.
 var circleThePerimeterTransition = function(here, internalState, worldState) {
+  print("circleThePerimeterTransition");
   var map = worldState.map;
+  print("???");
   var mkNewPosition = function() {
+    print("do closures work?");
+    print(map);
     if (isOnPerimeter(here, map)) {
       if (here.x == leftWall(map) && here.y != topWall(map)) {
         // Left wall.
@@ -290,9 +372,9 @@ var worldState1 = {
 };
 
 var worldState2 = {
-  bulls: [{x:2,y:0}, {x:3,y:7}],
-  cowboys: [{x:0,y:0}, {x:1,y:1}],
-  map: {rows: 4, cols: 8}
+  bulls: [{x:11,y:10}, {x:3,y:7}],
+  cowboys: [{x:5,y:5}, {x:15,y:15}],
+  map: {rows: 20, cols: 20}
 };
 
 
@@ -303,3 +385,16 @@ print(worldState2);
 print(render(worldState2));
 
 print(isOnPerimeter(worldState1.cowboys[1], worldState1.map));
+
+
+// XXX: run main simulation loop and print results. Want to insert
+// delays between printing the map, and insert the console clear
+// character after each print; see example shell code above.
+var simState2 = {
+  bulls: map(function(xy){return {xy: xy, internalState: {}, transition: circleThePerimeterTransition}},
+            worldState2.bulls),
+  cowboys: map(function(xy){return {xy: xy, internalState: {}, transition: idTransition}},
+               worldState2.cowboys),
+  map: worldState2.map
+};
+print(runSimulation(simState2, 10));
