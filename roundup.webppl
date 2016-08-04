@@ -388,28 +388,36 @@ var worldState2 = {
 };
 
 
-print(worldState1);
-print(render(worldState1));
-print("");
-print(worldState2);
-print(render(worldState2));
+//print(isOnPerimeter(worldState1.cowboys[1], worldState1.map));
 
-print(isOnPerimeter(worldState1.cowboys[1], worldState1.map));
+var withTransition = function(t) {
+  var fn = function(xy) {
+    return { xy: xy
+           , internalState: {}
+           , transition: t
+           }
+  }
+  return fn
+}
+
+var makeDummy = withTransition(circleThePerimeterTransition)
 
 
 // XXX: run main simulation loop and print results. Want to insert
 // delays between printing the map, and insert the console clear
 // character after each print; see example shell code above.
-var simState2 = {
-  bulls: map(function(xy)
-    [return {
-      xy: xy, 
-      internalState: {}, 
-      transition: circleThePerimeterTransition
-    }],
-            worldState2.bulls),
-  cowboys: map(function(xy){return {xy: xy, internalState: {}, transition: idTransition}},
-               worldState2.cowboys),
-  map: worldState2.map
-};
-print(runSimulation(simState2, 10));
+//var simState2 = {
+//  bulls: [
+//    { xy: xy, 
+//      internalState: {}, 
+//      transition: circleThePerimeterTransition
+//    }},
+//            worldState2.bulls),
+//  cowboys: map(function(xy){return {xy: xy, internalState: {}, transition: idTransition}},
+//               worldState2.cowboys),
+//  map: worldState2.map
+//};
+// print(runSimulation(simState2, 10));
+
+
+print(map(makeDummy, worldState2.bulls))
