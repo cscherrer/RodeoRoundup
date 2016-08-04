@@ -433,7 +433,7 @@ var makeDummy = withTransition(circleThePerimeterTransition)
 
 var simState2 = {
     bulls: map(makeDummy, worldState2.bulls)
-  , cowboys: map(withTransition(idTransition), worldState2.cowboys)
+  , cowboys: map(withTransition(cowboyTransition), worldState2.cowboys)
   , map: worldState2.map
 }
 
