@@ -21,6 +21,14 @@ var stateToIntState = function(state) {
          };
 };
 
+var sim2world = function(simState) {
+  return {
+    bulls: map(getXy, simState.bulls),
+    cowboys: map(getXy, simState.cowboys),
+    map: simState.map
+  }
+}
+
 ////////////////////////////////////////////////////////////////
 // State transitions.
 ////////////////////////////////////////////////////////////////
@@ -93,12 +101,8 @@ var stepSimulation = function(simState) {
   var getXy = function(r) { return r.xy };
   print("getXy: " + getXy(simState.bulls[0]).x);
   print("simulate 2");
-  var worldState = {
-    bulls: map(getXy, simState.bulls),
-    cowboys: map(getXy, simState.cowboys),
-    map: simState.map
-  }
-  print("simulate 2");
+  var worldState = sim2world(simState);
+  print("simulate 3");
   // NOTE!!! The plain 'print(worldState)' prints a useful
   // representation, but the 'print("worldState: " + worldState)' does
   // not! I have no idea how the string conversion works, but the
@@ -301,13 +305,17 @@ var cowboyTransition = function(here,state) {
   return move(here)
 }
 
-var   actions = [goUp, goDown, goLeft, goRight];
+var transition = function(here, state, action) {
+  
+}
+
+var actions = [goUp, goDown, goLeft, goRight];
 
 // Maximum utility agent, adapted from Andreas's code
-var maxEUAgent = function(here,state,utility) {
+var maxEUAgent = function(,state,utility) {
   var expectedUtility = function(action) {
     return expectation(Infer({ method: 'enumerate' }, function() {
-      return utility(transition(state, action));
+      return utility(transition(here, state, action));
     }));
   };
   return argMax(expectedUtility, actions);
@@ -391,7 +399,12 @@ print(isOnPerimeter(worldState1.cowboys[1], worldState1.map));
 // delays between printing the map, and insert the console clear
 // character after each print; see example shell code above.
 var simState2 = {
-  bulls: map(function(xy){return {xy: xy, internalState: {}, transition: circleThePerimeterTransition}},
+  bulls: map(function(xy)
+    [return {
+      xy: xy, 
+      internalState: {}, 
+      transition: circleThePerimeterTransition
+    }],
             worldState2.bulls),
   cowboys: map(function(xy){return {xy: xy, internalState: {}, transition: idTransition}},
                worldState2.cowboys),
