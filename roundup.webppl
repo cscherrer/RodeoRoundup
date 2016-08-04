@@ -100,15 +100,17 @@ var sim2world = function(simState) {
 
 
 
-var getCowboy = function(n, simState, worldState) {
+var getCowboy = function(n, simState) {
   var myAgent = simState.cowboys[n]
+  var worldState = sim2world(simState)
   var myWorld = {
       bulls: worldState.bulls
     , cowboys: removeElement(worldState.cowboys, n)
     , map: worldState.map
     }
-  }
+  return {myAgent: myAgent, myWorld:myWorld}
 }
+
 
 // Run the simulation for one step, by running all agent transition
 // functions to compute new agent states.
@@ -428,4 +430,5 @@ var simState2 = {
 
 
 print(simState2)
-stepSimulation(simState2)
+
+print(getCowboy(0, simState2))
