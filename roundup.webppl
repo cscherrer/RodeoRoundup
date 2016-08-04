@@ -21,6 +21,8 @@ var stateToIntState = function(state) {
          };
 };
 
+var getXy = function(r) { return r.xy };
+
 var sim2world = function(simState) {
   return {
     bulls: map(getXy, simState.bulls),
@@ -98,7 +100,7 @@ var stepSimulation = function(simState) {
   print(simState.bulls);
   print("length: " + simState.bulls.length);
   print("simulate 1");
-  var getXy = function(r) { return r.xy };
+  
   print("getXy: " + getXy(simState.bulls[0]).x);
   print("simulate 2");
   var worldState = sim2world(simState);
